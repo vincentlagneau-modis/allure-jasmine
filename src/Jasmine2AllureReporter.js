@@ -33,15 +33,18 @@ function Jasmine2AllureReporter(userDefinedConfig, allureReporter) {
     this.allure.startCase(spec.description);
   };
   this.specDone = function(spec) {
-    var status = this._getTestcaseStatus(spec.status);
+    var status = this._getTestcaseStatus(spec);
     var errorInfo = this._getTestcaseError(spec);
     this.allure.endCase(status, errorInfo);
   };
-  this._getTestcaseStatus = function(status) {
+  this._getTestcaseStatus = function(result) {
+    var status = result.status;
     if (status === 'disabled' || status === 'pending') {
       return Status.PENDING;
     } else if (status === 'passed') {
       return Status.PASSED;
+    } else if(status === 'failed' && !result.failedExpectations[0].matcherName) {
+      return Status.BROKEN;
     } else {
       return Status.FAILED;
     }
